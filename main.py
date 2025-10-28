@@ -7,17 +7,17 @@ from typing import List
 
 app = FastAPI(title="Task Manager API")
 
-# 🔹 MongoDB konekcija
-MONGO_URI = "mongodb://localhost:27017"  # ili tvoj cloud URI
+
+MONGO_URI = "mongodb://localhost:27017"  
 client = AsyncIOMotorClient(MONGO_URI)
 db = client["taskdb"]
 tasks_collection = db["tasks"]
 
-# 🔹 Helper za ObjectId
+
 def objectid_to_str(obj_id):
     return str(obj_id) if obj_id else None
 
-# 🔹 Model za čitanje iz baze
+
 class TaskModel(BaseModel):
     id: str = Field(default_factory=lambda: str(ObjectId()), alias="_id")
     title: constr(max_length=50)
@@ -28,19 +28,19 @@ class TaskModel(BaseModel):
         json_encoders = {ObjectId: str}
         populate_by_name = True
 
-# 🔹 Model za kreiranje taska
+
 class TaskCreate(BaseModel):
     title: constr(max_length=50) = Field(default="New task")
     created_by: constr(max_length=30)
 
-# 🔹 GET svi zadaci
+
 @app.get("/tasks", response_model=List[TaskModel])
 async def get_tasks():
     try:
         tasks = []
         cursor = tasks_collection.find()
         async for task in cursor:
-            task["_id"] = str(task["_id"])  # ObjectId → string
+            task["_id"] = str(task["_id"])  
             tasks.append(TaskModel(**task))
         return tasks
     except Exception as e:
@@ -48,7 +48,7 @@ async def get_tasks():
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
-# 🔹 POST novi task
+
 @app.post("/tasks", response_model=TaskModel)
 async def create_task(task: TaskCreate):
     task_dict = task.model_dump()  # Pydantic V2 način
@@ -60,7 +60,7 @@ async def create_task(task: TaskCreate):
     new_task["_id"] = str(new_task["_id"])
     return TaskModel(**new_task)
 
-# 🔹 DELETE svi taskovi
+
 @app.delete("/tasks", response_model=dict)
 async def delete_all_tasks():
     result = await tasks_collection.delete_many({})
