@@ -2,11 +2,11 @@ from pydantic import BaseModel, Field
 from bson import ObjectId
 from datetime import datetime
 
-# Funkcija za generisanje ObjectId kao string
+# Function to generate ObjectId as a string
 def generate_object_id() -> str:
     return str(ObjectId())
 
-# Funkcija za default timestamp
+# Function for default timestamp
 def current_datetime() -> datetime:
     return datetime.utcnow()
 
@@ -19,3 +19,4 @@ class Task(BaseModel):
     class Config:
         populate_by_name = True
         json_encoders = {ObjectId: str}
+

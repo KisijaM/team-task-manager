@@ -4,3 +4,4 @@ from routes.tasks import router as tasks_router
 app = FastAPI(title="Task Manager API")
 
 app.include_router(tasks_router)
+

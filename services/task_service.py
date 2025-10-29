@@ -1,19 +1,24 @@
 from typing import List
 from core.task import Task
-from db import tasks_collection
+from repositories.task_repository import TaskRepository
+from dto.task_dto import TaskDTO
+from services.task_mapper import convert_task_to_dto
 
 class TaskService:
-    async def get_all_tasks(self) -> List[Task]:
-        tasks = []
-        async for task in tasks_collection.find():
-            task["_id"] = str(task["_id"])
-            tasks.append(Task(**task))
-        return tasks
+    def __init__(self, repository: TaskRepository = None):
+        self.repository = repository or TaskRepository()
 
-    async def create_task(self, task: Task) -> Task:
-        await tasks_collection.insert_one(task.dict())
-        return task
+    async def get_all_tasks(self) -> List[TaskDTO]:
+        tasks = await self.repository.get_all()
+        return [convert_task_to_dto(task) for task in tasks]
 
-    async def delete_all_tasks(self) -> int:
-        result = await tasks_collection.delete_many({})
-        return result.deleted_count
+    async def create_task(self, task: Task) -> TaskDTO:
+        created_task = await self.repository.create(task)
+        return convert_task_to_dto(created_task)
+
+    async def delete_task(self, task_id: str) -> bool:
+        return await self.repository.delete(task_id)
+
+# Dependency injection
+def get_task_service() -> TaskService:
+    return TaskService()
