@@ -1,22 +1,21 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from bson import ObjectId
 from datetime import datetime
 
-# Function to generate ObjectId as a string
-def generate_object_id() -> str:
+def generate_id() -> str:
     return str(ObjectId())
 
-# Function for default timestamp
-def current_datetime() -> datetime:
-    return datetime.utcnow()
-
 class Task(BaseModel):
-    id: str = Field(default_factory=generate_object_id, alias="_id")
+    id: str
     title: str
     created_by: str
-    date: datetime = Field(default_factory=current_datetime)
+    created_at: datetime
 
-    class Config:
-        populate_by_name = True
-        json_encoders = {ObjectId: str}
-
+    @staticmethod
+    def create(title: str, created_by: str) -> "Task":
+        return Task(
+            id=generate_id(),
+            title=title,
+            created_by=created_by,
+            created_at=datetime.utcnow()
+        )

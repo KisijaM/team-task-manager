@@ -1,7 +1,6 @@
 from fastapi import FastAPI
-from routes.tasks import router as tasks_router
+from routes import tasks
 
-app = FastAPI(title="Task Manager API")
+app = FastAPI(title="Team Task Manager")
 
-app.include_router(tasks_router)
-
+app.include_router(tasks.router)
