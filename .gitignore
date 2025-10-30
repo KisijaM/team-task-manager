@@ -4,8 +4,7 @@ __pycache__/
 
 # Environment
 .env
-venv/
-*.venv/
+
 
 # IDE / Editor
 .vscode/

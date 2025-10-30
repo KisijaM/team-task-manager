@@ -1,18 +1,10 @@
-from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
 from app.core.task import Task
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-MONGO_URI = os.getenv("MONGO_URI")
-DB_NAME = os.getenv("DB_NAME")
+from app.db import db  
 
 class TaskRepository:
     def __init__(self):
-        self.client = AsyncIOMotorClient(MONGO_URI)
-        self.db = self.client[DB_NAME]
-        self.collection = self.db["tasks"]
+        self.collection = db["tasks"]  
 
     async def create(self, task_data: dict) -> dict:
         result = await self.collection.insert_one(task_data)
