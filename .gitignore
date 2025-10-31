@@ -1,0 +1,23 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Environment
+.env
+
+
+# IDE / Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS fajlovi
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database / cache
+*.sqlite3
