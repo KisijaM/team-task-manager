@@ -7,7 +7,7 @@ class TaskService:
         self.repository = repository
 
     async def get_all_tasks(self):
-        tasks = await self.repository.get_all()
+        tasks = await self.repository.find_all()  
         return [
             TaskDTO(
                 id=str(task["_id"]),
@@ -19,15 +19,17 @@ class TaskService:
 
     async def create_task_from_dto(self, task_create: TaskCreateDTO):
         task_dict = task_create.dict()
-        created_task = await self.repository.create(task_dict)
+        created_task = await self.repository.insert_one(task_dict)
+        
+        doc = await self.repository.find_by_id(created_task)
         return TaskDTO(
-            id=str(created_task["_id"]),
-            title=created_task["title"],
-            created_by=created_task.get("created_by", "unknown")
+            id=str(doc["_id"]),
+            title=doc["title"],
+            created_by=doc.get("created_by", "unknown")
         )
 
     async def delete_task(self, task_id: str):
-        return await self.repository.delete(task_id)
+        return await self.repository.delete_by_id(task_id)
 
 
 # Dependency
