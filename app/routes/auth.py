@@ -1,26 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends, Security
-from pydantic import BaseModel, EmailStr
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from app.core.security import create_access_token, verify_token
-from app.repositories.user_repository import UserRepository
+from app.services.user_service import UserService, get_user_service
+from app.dto.user_dto import UserRegisterDTO, UserLoginDTO, UserDTO
+from app.core.security import verify_token
 
 router = APIRouter()
 bearer_scheme = HTTPBearer()
-user_repo = UserRepository()
 
-# DTOs
-class UserRegisterDTO(BaseModel):
-    username: str
-    password: str
-    email: EmailStr
-    phone_number: str | None = None
-    address: str | None = None
-
-class UserLoginDTO(BaseModel):
-    username: str
-    password: str
-
-# Auth Helpers
 def get_current_user(credentials: HTTPAuthorizationCredentials = Security(bearer_scheme)):
     token = credentials.credentials
     username = verify_token(token)
@@ -28,61 +14,31 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Security(bearer
         raise HTTPException(status_code=401, detail="Invalid or expired token")
     return username
 
-# Routes
-@router.post("/register", tags=["auth"])
+@router.post("/register", response_model=UserDTO, tags=["auth"])
 async def register(user: UserRegisterDTO):
-    existing_user = await user_repo.get_user_by_username(user.username)
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Username already exists")
-    
-    created_user = await user_repo.create_user(
-        username=user.username,
-        password=user.password,
-        email=user.email,
-        phone_number=user.phone_number,
-        address=user.address
-    )
-
-    if created_user == "username_exists":
-        raise HTTPException(status_code=400, detail="Username already exists")
-
-    if created_user == "email_exists":
-        raise HTTPException(status_code=400, detail="Email already exists")
-
-    if not isinstance(created_user, dict):
-        raise HTTPException(status_code=400, detail="Failed to create user")
-    
-    return {"message": "User registered successfully", "user": created_user}
+    service: UserService = get_user_service()
+    result = await service.register_user(user)
+    if "error" in result:
+        if result["error"] == "username_exists":
+            raise HTTPException(status_code=400, detail="Username already exists")
+        if result["error"] == "email_exists":
+            raise HTTPException(status_code=400, detail="Email already exists")
+        if result["error"] == "creation_failed":
+            raise HTTPException(status_code=500, detail="User creation failed")
+    return result
 
 @router.post("/login", tags=["auth"])
 async def login(user: UserLoginDTO):
-    existing_user = await user_repo.get_user_by_username(user.username)
-    if not existing_user or existing_user.get("password") != user.password:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    
-    token = create_access_token({"sub": user.username})
-    return {
-        "access_token": token,
-        "token_type": "bearer",
-        "user": {
-            "username": existing_user["username"],
-            "email": existing_user["email"],
-            "phone_number": existing_user.get("phone_number"),
-            "address": existing_user.get("address")
-        }
-    }
+    service: UserService = get_user_service()
+    result = await service.login_user(user.username, user.password)
+    if not result:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    return result  
 
-@router.delete("/delete/{username}", response_model=dict, tags=["auth"])
-async def delete_user(username: str, current_user: str = Depends(get_current_user)):
-    """
-    Delete a user by username. Requires a valid JWT token.
-    Users can only delete their own account.
-    """
-    if username != current_user:
-        raise HTTPException(status_code=403, detail="You can only delete your own account")
-
-    deleted_count = await user_repo.delete_user_by_username(username)
+@router.delete("/delete/{user_id}", response_model=dict, tags=["auth"])
+async def delete_user(user_id: str, username: str = Depends(get_current_user)):
+    service: UserService = get_user_service()
+    deleted_count = await service.delete_user(user_id)
     if not deleted_count:
         raise HTTPException(status_code=404, detail="User not found")
-    
     return {"message": "User deleted successfully"}

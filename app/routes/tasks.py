@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from typing import List, Optional
+from typing import List
 
 from app.services.task_service import TaskService, get_task_service
 from app.dto.task_create_dto import TaskCreateDTO
@@ -8,13 +8,11 @@ from app.dto.task_dto import TaskDTO
 from app.core.security import verify_token
 
 router = APIRouter()
-
-# HTTP Bearer security
 bearer_scheme = HTTPBearer()
 
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Security(bearer_scheme)):
-    token = credentials.credentials  # ovo je sam token, bez "Bearer"
+    token = credentials.credentials
     username = verify_token(token)
     if not username:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
@@ -36,13 +34,14 @@ async def get_tasks(
 async def create_task(
     task_create: TaskCreateDTO,
     service: TaskService = Depends(get_task_service),
-    username: str = Depends(get_current_user)
+    username: str = Depends(get_current_user)  
 ):
     """
     Create a new task. If 'created_by' is not provided in the request, it defaults to the JWT username.
     """
     if not task_create.created_by:
         task_create.created_by = username
+
     return await service.create_task_from_dto(task_create)
 
 
