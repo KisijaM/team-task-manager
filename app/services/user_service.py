@@ -1,7 +1,7 @@
 from typing import Optional
 from app.repositories.user_repository import UserRepository
 from app.dto.user_dto import UserRegisterDTO, UserLoginDTO, UserDTO
-from app.core.security import hash_password, verify_password, create_access_token
+from app.security.security import hash_password, verify_password, create_access_token
 
 class UserService:
     def __init__(self, repository: UserRepository):

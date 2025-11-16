@@ -1,4 +1,4 @@
-from app.db import db  # ovo je tvoja instanca baze
+from app.db import db  
 from app.repositories.mongo_repository import MongoRepository
 
 class TaskRepository(MongoRepository):

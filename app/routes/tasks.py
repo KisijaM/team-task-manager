@@ -5,7 +5,7 @@ from typing import List
 from app.services.task_service import TaskService, get_task_service
 from app.dto.task_create_dto import TaskCreateDTO
 from app.dto.task_dto import TaskDTO
-from app.core.security import verify_token
+from app.security.security import verify_token
 
 router = APIRouter()
 bearer_scheme = HTTPBearer()
