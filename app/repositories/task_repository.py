@@ -1,23 +1,14 @@
-from bson import ObjectId
-from app.core.task import Task
 from app.db import db  
+from app.repositories.mongo_repository import MongoRepository
 
-class TaskRepository:
+class TaskRepository(MongoRepository):
     def __init__(self):
-        self.collection = db["tasks"]  
+        super().__init__(db, "tasks")
 
-    async def create(self, task_data: dict) -> dict:
-        result = await self.collection.insert_one(task_data)
-        task_data["_id"] = result.inserted_id  
-        return task_data
-
-    async def get_all(self):
+    async def get_tasks_by_user_id(self, user_id: str) -> list[dict]:
+        cursor = self.collection.find({"user_id": user_id})
         tasks = []
-        cursor = self.collection.find()
-        async for document in cursor:
-            tasks.append(document)
+        async for task in cursor:
+            task["_id"] = str(task["_id"])
+            tasks.append(task)
         return tasks
-
-    async def delete(self, task_id: str):
-        result = await self.collection.delete_one({"_id": ObjectId(task_id)})
-        return result.deleted_count
