@@ -1,23 +1,52 @@
+# -------------------------
 # Python bytecode
+# -------------------------
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
 
+# -------------------------
 # Environment
-.env
+# -------------------------
+.env            # lokalni environment fajlovi (npr. sa lozinkama / tokenima)
 
-
+# -------------------------
 # IDE / Editor
+# -------------------------
 .vscode/
 .idea/
 *.sublime-project
 *.sublime-workspace
 
+# -------------------------
 # OS fajlovi
+# -------------------------
 .DS_Store
 Thumbs.db
 
+# -------------------------
 # Logs
+# -------------------------
 *.log
 
+# -------------------------
 # Database / cache
+# -------------------------
 *.sqlite3
+*.db
+.pytest_cache/    # cache od pytest-a
+
+# -------------------------
+# Docker
+# -------------------------
+# Docker lokalni podaci i volumes
+data/             # ako koristiš volume za bazu
+*.swp
+*.tmp
+
+# -------------------------
+# Misc / backups
+# -------------------------
+*.bak
+*.old
