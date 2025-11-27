@@ -9,7 +9,7 @@ __pycache__/
 # -------------------------
 # Environment
 # -------------------------
-.env            # lokalni environment fajlovi (npr. sa lozinkama / tokenima)
+.env             
 
 # -------------------------
 # IDE / Editor
@@ -35,13 +35,13 @@ Thumbs.db
 # -------------------------
 *.sqlite3
 *.db
-.pytest_cache/    # cache od pytest-a
+.pytest_cache/    
 
 # -------------------------
 # Docker
 # -------------------------
 # Docker lokalni podaci i volumes
-data/             # ako koristiš volume za bazu
+data/             
 *.swp
 *.tmp
 

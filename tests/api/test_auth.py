@@ -1,12 +1,10 @@
-import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import AsyncMock, patch
 from app.main import app
 
 client = TestClient(app)
 
-@pytest.mark.asyncio
-async def test_register_user_success():
+def test_register_user_success():
     user_data = {
         "username": "TestUser1",
         "password": "Password1",
@@ -15,7 +13,10 @@ async def test_register_user_success():
         "address": "Test Street 1"
     }
 
-    with patch("app.services.user_service.UserService.register_user", new_callable=AsyncMock) as mock_register:
+    with patch(
+        "app.services.user_service.UserService.register_user",
+        new_callable=AsyncMock
+    ) as mock_register:
         mock_register.return_value = {
             "id": "1",
             "username": "TestUser1",
@@ -28,14 +29,17 @@ async def test_register_user_success():
         assert response.status_code == 200
         assert response.json()["username"] == "TestUser1"
 
-@pytest.mark.asyncio
-async def test_login_user_success():
+
+def test_login_user_success():
     login_data = {
         "username": "TestUser1",
         "password": "Password1"
     }
 
-    with patch("app.services.user_service.UserService.login_user", new_callable=AsyncMock) as mock_login:
+    with patch(
+        "app.services.user_service.UserService.login_user",
+        new_callable=AsyncMock
+    ) as mock_login:
         mock_login.return_value = {
             "user": {"id": "1", "username": "TestUser1"},
             "access_token": "fake-token"
@@ -45,16 +49,20 @@ async def test_login_user_success():
         assert response.status_code == 200
         assert "access_token" in response.json()
 
-@pytest.mark.asyncio
-async def test_delete_user_success():
+
+def test_delete_user_success():
     user_id = "1"
 
-    with patch("app.services.user_service.UserService.delete_user", new_callable=AsyncMock) as mock_delete, \
+    with patch(
+        "app.services.user_service.UserService.delete_user",
+        new_callable=AsyncMock
+    ) as mock_delete, \
          patch("app.routes.auth.verify_token", return_value="TestUser1"):
 
         mock_delete.return_value = 1
 
         headers = {"Authorization": "Bearer faketoken"}
         response = client.delete(f"/auth/delete/{user_id}", headers=headers)
+
         assert response.status_code == 200
         assert response.json()["message"] == "User deleted successfully"
