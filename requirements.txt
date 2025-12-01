@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+pymongo
+motor
+python-dotenv
+PyJWT
+passlib[bcrypt]
+pydantic[email]
+argon2_cffi

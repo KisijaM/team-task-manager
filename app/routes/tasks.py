@@ -27,7 +27,11 @@ async def get_tasks(
     """
     Get all tasks. Requires a valid JWT token.
     """
-    return await service.get_all_tasks()
+    try:
+        return await service.get_all_tasks()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 @router.post("/", response_model=TaskDTO, tags=["tasks"])
